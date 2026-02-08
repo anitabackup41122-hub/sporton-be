@@ -1,16 +1,14 @@
 import { Router } from "express";
 import uploud from "../middleware/uploud";
 import authenticate from "../middleware/auth";
-import { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory } from "../controller/category";
+import { createTransaction, getTransactionById, getTransactions, updateTransaction } from "../controller/transaction";
 
 const router = Router();
+const middlewareUpload = uploud("data/transaction");
 
-const middlewareUpload = uploud("data/category")
-
-router.post("/checkout", middlewareUpload.single("image"), authenticate, createCategory);
-router.get("/", getCategories);
-router.get("/:id", getCategoryById);
-router.put("/:id", middlewareUpload.single("image"), authenticate, updateCategory);
-router.delete("/:id", authenticate, deleteCategory);
+router.post("/checkout", middlewareUpload.single("paymentProof"), createTransaction);
+router.get("/", authenticate, getTransactions);
+router.get("/:id", getTransactionById);
+router.put("/:id", authenticate, updateTransaction);
 
 export default router;
