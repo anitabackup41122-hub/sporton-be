@@ -6,7 +6,7 @@ import { createTransaction, getTransactionById, getTransactions, updateTransacti
 const router = Router();
 const middlewareUpload = uploud("data/transaction");
 
-router.post("/checkout", middlewareUpload.single("paymentProof"), createTransaction);
+router.post("/checkout", middlewareUpload.single("image"), createTransaction);
 router.get("/", authenticate, getTransactions);
 router.get("/:id", getTransactionById);
 router.put("/:id", authenticate, updateTransaction);
