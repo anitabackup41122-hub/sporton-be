@@ -59,7 +59,6 @@ export const getTransactionById = async (req: Request, res: Response): Promise<v
 
 export const updateTransaction = async (req: Request, res: Response): Promise<void> => {
     try {
-        console.log(req.body)
         const {status} = req.body;
         const transaction = await Transaction.findByIdAndUpdate(req.params.id, { status: status }, { new: true });
         if (!transaction) {
@@ -82,4 +81,5 @@ export const updateTransaction = async (req: Request, res: Response): Promise<vo
         res.status(500).json({ message: "Error Occurred:", error});
     }
 }
+
 
