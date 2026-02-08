@@ -12,7 +12,7 @@ cloudinary.config({
 });
 
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  if (file.mimetype.startsWith("image/") || file.mimetype === "application/pdf") {
+  if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
     cb(new Error("Only images and PDF are allowed"));
@@ -66,3 +66,4 @@ export const uploud = (pathname: string) => {
 };
 
 export default uploud;
+
