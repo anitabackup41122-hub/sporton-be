@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>SPORTON API Tester</title>
+  <style>body{font-family:Arial;max-width:1000px;margin:20px}section{border:1px solid #ddd;padding:12px;margin:8px 0}label{display:block;margin:6px 0}input,textarea,select{width:100%;padding:6px}</style>
+</head>
+<body>
+  <h1>SPORTON - Quick API Tester</h1>
+  <p>Set the base URL (include port):</p>
+  <input id="baseUrl" value="http://localhost:3000" />
+  <p>Auth Token (paste after signin):</p>
+  <input id="authToken" placeholder="Bearer token..." />
+
+  <section>
+    <h2>Auth</h2>
+    <div>
+      <h3>Initiate Admin</h3>
+      <label>Email<input id="init_email" /></label>
+      <label>Name<input id="init_name" /></label>
+      <label>Password<input id="init_password" type="password" /></label>
+      <button onclick="initAdmin()">Send</button>
+    </div>
+    <div>
+      <h3>Sign In</h3>
+      <label>Email<input id="signin_email" /></label>
+      <label>Password<input id="signin_password" type="password" /></label>
+      <button onclick="signIn()">Sign In</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Banks</h2>
+    <label>Bank Name<input id="bank_name" /></label>
+    <label>Account Name<input id="bank_accountName" /></label>
+    <label>Account Number<input id="bank_accountNumber" /></label>
+    <label>ID (for update/delete)<input id="bank_id" /></label>
+    <button onclick="createBank()">Create Bank</button>
+    <button onclick="getBanks()">List Banks</button>
+    <button onclick="updateBank()">Update Bank</button>
+    <button onclick="deleteBank()">Delete Bank</button>
+  </section>
+
+  <section>
+    <h2>Categories</h2>
+    <label>Name<input id="cat_name" /></label>
+    <label>Description<textarea id="cat_desc"></textarea></label>
+    <label>Image<input id="cat_image" type="file" /></label>
+    <label>ID (for update/delete)<input id="cat_id" /></label>
+    <button onclick="createCategory()">Create Category</button>
+    <button onclick="getCategories()">List Categories</button>
+    <button onclick="updateCategory()">Update Category</button>
+    <button onclick="deleteCategory()">Delete Category</button>
+  </section>
+
+  <section>
+    <h2>Products</h2>
+    <label>Name<input id="prod_name" /></label>
+    <label>Description<textarea id="prod_desc"></textarea></label>
+    <label>Stock<input id="prod_stock" type="number" /></label>
+    <label>Price<input id="prod_price" type="number" /></label>
+    <label>Category ID<input id="prod_category" /></label>
+    <label>Image<input id="prod_image" type="file" /></label>
+    <label>ID (for update/delete)<input id="prod_id" /></label>
+    <button onclick="createProduct()">Create Product</button>
+    <button onclick="getProducts()">List Products</button>
+    <button onclick="updateProduct()">Update Product</button>
+    <button onclick="deleteProduct()">Delete Product</button>
+  </section>
+
+  <section>
+    <h2>Transactions</h2>
+    <label>Purchased Items (JSON) <textarea id="tran_items">[ { "productId": "", "qty": 1 } ]</textarea></label>
+    <label>Total Payment<input id="tran_total" type="number" /></label>
+    <label>Customer Name<input id="tran_name" /></label>
+    <label>Customer Contact<input id="tran_contact" /></label>
+    <label>Customer Address<textarea id="tran_address"></textarea></label>
+    <label>Payment Proof<input id="tran_file" type="file" /></label>
+    <label>ID (for get/update)<input id="tran_id" /></label>
+    <label>Status for update<select id="tran_status"><option value="pending">pending</option><option value="paid">paid</option><option value="rejected">rejected</option></select></label>
+    <button onclick="createTransaction()">Create Transaction</button>
+    <button onclick="getTransactions()">List Transactions (auth)</button>
+    <button onclick="getTransactionById()">Get Transaction By ID</button>
+    <button onclick="updateTransaction()">Update Transaction (auth)</button>
+  </section>
+
+  <h3>Response</h3>
+  <pre id="response" style="white-space:pre-wrap;background:#f7f7f7;padding:10px;border:1px solid #eee;min-height:120px"></pre>
+
+<script>
+const out = id => document.getElementById(id);
+function show(res){ out('response').textContent = JSON.stringify(res, null, 2); }
+function getBase(){ return out('baseUrl').value.replace(/\/$/, ''); }
+function authHeader(){ const t = out('authToken').value.trim(); return t ? { 'Authorization': t } : {}; }
+
+async function initAdmin(){
+  const body = { email: out('init_email').value, name: out('init_name').value, password: out('init_password').value };
+  const res = await fetch(getBase() + '/api/auth/initiate-admin', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  show(await res.json());
+}
+async function signIn(){
+  const body = { email: out('signin_email').value, password: out('signin_password').value };
+  const res = await fetch(getBase() + '/api/auth/signin', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const data = await res.json(); show(data); if(data.token) out('authToken').value = 'Bearer ' + data.token;
+}
+
+// Banks
+async function createBank(){
+  const body = { bankName: out('bank_name').value, accountName: out('bank_accountName').value, accountNumber: out('bank_accountNumber').value };
+  const res = await fetch(getBase() + '/api/banks', { method:'POST', headers: {...authHeader(), 'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  show(await res.json());
+}
+async function getBanks(){ const res = await fetch(getBase() + '/api/banks'); show(await res.json()); }
+async function updateBank(){ const id = out('bank_id').value; const body = { bankName: out('bank_name').value }; const res = await fetch(getBase() + '/api/banks/' + id, { method:'PUT', headers:{...authHeader(), 'Content-Type':'application/json'}, body: JSON.stringify(body)}); show(await res.json()); }
+async function deleteBank(){ const id = out('bank_id').value; const res = await fetch(getBase() + '/api/banks/' + id, { method:'DELETE', headers:{...authHeader()} }); show(await res.json()); }
+
+// Categories (file upload)
+async function createCategory(){
+  const fd = new FormData(); fd.append('name', out('cat_name').value); fd.append('description', out('cat_desc').value);
+  const f = out('cat_image').files[0]; if(f) fd.append('image', f);
+  const res = await fetch(getBase() + '/api/categories', { method:'POST', headers: {...authHeader()}, body: fd }); show(await res.json());
+}
+async function getCategories(){ const res = await fetch(getBase() + '/api/categories'); show(await res.json()); }
+async function updateCategory(){ const id = out('cat_id').value; const fd = new FormData(); fd.append('name', out('cat_name').value); fd.append('description', out('cat_desc').value); const f = out('cat_image').files[0]; if(f) fd.append('image', f); const res = await fetch(getBase() + '/api/categories/' + id, { method:'PUT', headers:{...authHeader()}, body: fd }); show(await res.json()); }
+async function deleteCategory(){ const id = out('cat_id').value; const res = await fetch(getBase() + '/api/categories/' + id, { method:'DELETE', headers:{...authHeader()} }); show(await res.json()); }
+
+// Products
+async function createProduct(){
+  const fd = new FormData(); fd.append('name', out('prod_name').value); fd.append('description', out('prod_desc').value); fd.append('stock', out('prod_stock').value); fd.append('price', out('prod_price').value); fd.append('category', out('prod_category').value);
+  const f = out('prod_image').files[0]; if(f) fd.append('image', f);
+  const res = await fetch(getBase() + '/api/products', { method:'POST', headers:{...authHeader()}, body: fd }); show(await res.json());
+}
+async function getProducts(){ const res = await fetch(getBase() + '/api/products'); show(await res.json()); }
+async function updateProduct(){ const id = out('prod_id').value; const fd = new FormData(); fd.append('name', out('prod_name').value); fd.append('description', out('prod_desc').value); fd.append('stock', out('prod_stock').value); fd.append('price', out('prod_price').value); fd.append('category', out('prod_category').value); const f = out('prod_image').files[0]; if(f) fd.append('image', f); const res = await fetch(getBase() + '/api/products/' + id, { method:'PUT', headers:{...authHeader()}, body: fd }); show(await res.json()); }
+async function deleteProduct(){ const id = out('prod_id').value; const res = await fetch(getBase() + '/api/products/' + id, { method:'DELETE', headers:{...authHeader()} }); show(await res.json()); }
+
+// Transactions
+async function createTransaction(){
+  const fd = new FormData(); fd.append('purchasedItems', out('tran_items').value); fd.append('totalPayment', out('tran_total').value); fd.append('customerName', out('tran_name').value); fd.append('customerContact', out('tran_contact').value); fd.append('customerAddress', out('tran_address').value);
+  const f = out('tran_file').files[0]; if(f) fd.append('paymentProof', f);
+  const res = await fetch(getBase() + '/api/transactions', { method:'POST', headers:{}, body: fd }); show(await res.json());
+}
+async function getTransactions(){ const res = await fetch(getBase() + '/api/transactions', { headers: {...authHeader()} }); show(await res.json()); }
+async function getTransactionById(){ const id = out('tran_id').value; const res = await fetch(getBase() + '/api/transactions/' + id); show(await res.json()); }
+async function updateTransaction(){ const id = out('tran_id').value; const body = { status: out('tran_status').value }; const res = await fetch(getBase() + '/api/transactions/' + id, { method:'PUT', headers:{...authHeader(), 'Content-Type':'application/json'}, body: JSON.stringify(body) }); show(await res.json()); }
+
+</script>
+</body>
+</html>

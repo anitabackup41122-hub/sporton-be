@@ -1,0 +1,33 @@
+{
+  "name": "sporton-be",
+  "version": "1.0.0",
+  "description": "A TypeScript project",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc-watch --onSuccess \"node dist/index.js\"",
+    "git": "git add . && git commit -m \"${npm_config_m:-auto commit $(date)}\" && git push"
+  },
+  "keywords": [],
+  "author": "godim",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.2.2",
+    "tsc-watch": "^7.2.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^1.41.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.6",
+    "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^4.0.0"
+  }
+}
