@@ -59,14 +59,14 @@ export const getTransactionById = async (req: Request, res: Response): Promise<v
 
 export const updateTransaction = async (req: Request, res: Response): Promise<void> => {
     try {
-        const body = req.body.status;
-        const transaction = await Transaction.findByIdAndUpdate(req.params.id, { status: body }, { new: true });
+        const {status} = req.body;
+        const transaction = await Transaction.findByIdAndUpdate(req.params.id, { status: status }, { new: true });
         if (!transaction) {
             res.status(400).json({ message: "Transaction not found" });
             return; // Stop with return
         }
         
-        if (body.status === "paid" && transaction.status !== "paid") {
+        if (status === "paid" && transaction.status !== "paid") {
             for (const item of transaction.purchasedItems) {
                 await Product.findByIdAndUpdate(item.productId, {
                 $inc: { stock: -item.qty },
@@ -74,7 +74,7 @@ export const updateTransaction = async (req: Request, res: Response): Promise<vo
             }
         }
 
-        const transactionUpdated = await Transaction.findByIdAndUpdate(req.params.id, body, { new: true });
+        const transactionUpdated = await Transaction.findByIdAndUpdate(req.params.id, { status }, { new: true });
         res.status(200).json(transactionUpdated);
     } catch (error) {
         console.error("Error updating transaction:", error);
